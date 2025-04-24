@@ -1,9 +1,26 @@
 version: '3.8'
 
 services:
-  web:
+  apache:
     build: .
-    ports:
-      - "5000:80"
+    expose:
+      - "80"  # Доступ только внутри Docker-сети
     volumes:
-      - /z/FTP/DEV/src:/var/www/html
+      - ./src:/var/www/html
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "5000:80"  # Публикуем порт наружу
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - apache
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
